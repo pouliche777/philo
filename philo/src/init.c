@@ -6,22 +6,32 @@
 /*   By: slord <slord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/13 13:21:00 by slord             #+#    #+#             */
-/*   Updated: 2022/09/13 22:05:59 by slord            ###   ########.fr       */
+/*   Updated: 2022/09/20 15:53:49 by slord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-int mails;
-void	init_mutex(t_table *table)
+
+int	init_mutex(t_table *table)
 {
-	pthread_mutex_init(&table->mutex, NULL);
+	int	i;
+	
+	i = 0;
+	table->mutex = malloc(sizeof(pthread_mutex_t) * table->nb_philo);
+	while (i < table->nb_philo)
+	{
+		pthread_mutex_init(&table->mutex[i], NULL);
+		i++;
+	}
+	if (pthread_mutex_init(&table->waiter, NULL) != 0)
+		return (1);
+	return (0);
 }
 
-void	init_philo(t_table *table)
+int	init_philo(t_table *table)
 {
 	int			i;
 	t_philo		*philo;
-	pthread_t	waiter;
 
 	table->threads_philo = malloc(sizeof(pthread_t) * table->nb_philo);
 	philo = malloc(sizeof(t_philo) * table->nb_philo);
@@ -30,17 +40,19 @@ void	init_philo(t_table *table)
 	{
 		philo[i].n_philo = i;
 		philo[i].table = table;
+		philo[i].time_last_meal = 0;
+		philo[i].thread = table->threads_philo[i];
 		i++;
 	}
 	i = 0;
+	table->start_time = get_time();
 	while (i < table->nb_philo)
 	{
 		if (pthread_create(&table->threads_philo[i],NULL, &routine_philo, &philo[i]) != 0)
-			exit(1);
+			return(0);
 		i++;
 	}
-	
-	//if (pthread_create(&waiter, NULL, &who_die, philo) != 0)
-		//	exit(1);
-
+	if (!death_watcher(philo))
+		return (0);
+	return (1);
 }

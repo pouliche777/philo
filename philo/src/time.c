@@ -1,38 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_main.c                                       :+:      :+:    :+:   */
+/*   time.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: slord <slord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/09/13 13:55:59 by slord             #+#    #+#             */
-/*   Updated: 2022/09/13 21:55:58 by slord            ###   ########.fr       */
+/*   Created: 2022/09/13 20:32:33 by slord             #+#    #+#             */
+/*   Updated: 2022/09/17 20:25:14 by slord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-
-int	main(int argc, char **argv)
+time_t	get_time(void)
 {
-	t_table	table;
-	int		i;
-	
-	table.nb_philo = atoi(argv[1]);
-	table.compteur = 0;
-	i = 0;
-	table.forks= calloc(sizeof(int), table.nb_philo);
-	table.time_to_eat = 3;
-	table.time_without_meal = 60000;
-	init_mutex(&table);
-	init_philo(&table);
-	while (i < table.nb_philo)
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
+}
+
+void	goodnight_sweetprince(t_philo philo, time_t time_to_sleep)
+{
+	time_t	sleep_time;
+
+	sleep_time = time_to_sleep + get_time() - philo.table->start_time;
+	while (((get_time() - philo.table->start_time) < sleep_time))
 	{
-		if (pthread_join(table.threads_philo[i], NULL) != 0)
-		{
-			printf("Erreur, impossible de joindre");
-			return (2);
-		}
-		i++;
+		usleep(50);
 	}
 }
