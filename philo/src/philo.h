@@ -6,21 +6,18 @@
 /*   By: slord <slord@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/07 11:25:46 by slord             #+#    #+#             */
-/*   Updated: 2022/09/17 19:15:40 by slord            ###   ########.fr       */
+/*   Updated: 2022/11/23 22:08:33 by slord            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
 
-# include "../libft/libft.h"
 # include <stdlib.h>
+# include <unistd.h>
 # include <stdio.h>
 # include <pthread.h>
-# include <stdio.h>
 # include <sys/time.h>
-
-
 
 typedef struct s_table
 {
@@ -34,7 +31,8 @@ typedef struct s_table
 	int				nb_of_meals;
 	int				meals;
 	time_t			start_time;
-}	t_table;
+	struct s_philo	*philo;
+}		t_table;
 
 typedef struct s_philo
 {
@@ -43,18 +41,26 @@ typedef struct s_philo
 	int				meals;
 	time_t			time_last_meal;
 	pthread_t		thread;
-}	t_philo;
+	int				fork_1;
+	int				fork_2;
+}		t_philo;
 
+int		start(void);
+int		init_table(int argc, char **argv);
+int		check_args(int argc, char **argv);
+t_table	*get_struc_table(void);
 void	take_fork(int pos, t_philo philo);
-int		init_mutex(t_table *table);
-int     init_philo(t_table *table);
+int		init_mutex(void);
+int		init_philo(void);
 void	*routine_philo(void *arg);
-void	*who_die(void *arg);
-void	start(t_philo *philo);
 void	eating(t_philo *philo, int pos1, int pos2);
 void	sleeping(t_philo philo);
 void	thinking(t_philo *philo);
-int		death_watcher(t_philo *philo);
+int		death_watcher(void);
 time_t	get_time(void);
 void	goodnight_sweetprince(t_philo philo, time_t time_to_sleep);
+int		free_table(void);
+int		ft_atoi(const char *str);
+void	ft_putstr_fd(char *s, int fd);
+int		ft_isdigit(int c);
 #endif
